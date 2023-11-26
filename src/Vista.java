@@ -1,21 +1,21 @@
 import javax.swing.*;
 
 import com.formdev.flatlaf.FlatClientProperties;
-import com.formdev.flatlaf.extras.FlatAnimatedLafChange;
+
+import mode.LightDarkMode;
+import raven.toast.Notifications;
+import mode.Rutinas2;
 
 import java.awt.event.*;
 import java.awt.*;
-import mode.LightDarkMode;
 
-public class Vista extends JFrame implements ActionListener, ComponentListener {
+public class Vista extends JPanel implements ActionListener, ComponentListener {
 
-    static Vista app;
-    private final menu menu;
-
-    private JPanel panel;
+    private static App app;
 
     private JButton btnConectar;
 
+    private JLabel lblLogin;
     private JLabel lblServidor;
     private JLabel lblBasedeDatos;
     private JLabel lblUsuario;
@@ -25,14 +25,18 @@ public class Vista extends JFrame implements ActionListener, ComponentListener {
     private JTextField txtBasedeDatos;
     private JTextField txtUsuario;
     private JTextField txtContraseña;
+
+    private JPanel panel;
+
     private LightDarkMode lightDarkMode;
 
-    public Vista() {
-        super("Vista");
-        menu = new menu();
+    public Vista(App app) {
+        Vista.app = app;
         HazInterfaz();
         setMinimumSize(new Dimension(350, 350));
+
         HazEscuchas();
+        Notifications.getInstance().setJFrame(Vista.app);
     }
 
     private void HazEscuchas() {
@@ -41,26 +45,28 @@ public class Vista extends JFrame implements ActionListener, ComponentListener {
     }
 
     private void HazInterfaz() {
-        setSize(400, 500);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(null);
-
-        lightDarkMode = new LightDarkMode();
-        add(lightDarkMode);
 
         Font robotoFont = new Font("Roboto", Font.PLAIN, 14);
 
-        panel = new JPanel();
+        lightDarkMode = new LightDarkMode(70);
+        add(lightDarkMode);
+
         // panel.setBounds((int) (this.getWidth() * .08), (int) (this.getWidth() * .05),
         // (int) (this.getWidth() * .80),
         // (int) (this.getHeight() * .50));
+
+        panel = new JPanel();
+        add(panel);
 
         panel.setLayout(new Contenedorlbl_txt());
         panel.putClientProperty(FlatClientProperties.STYLE, ""
                 + "border:20,2,2,2;"
                 + "background:$Menu.background;"
                 + "arc:10");
+
+        lblLogin = new JLabel("Login");
+        panel.add(lblLogin);
 
         lblServidor = new JLabel("Servidor");
         lblServidor.setFont(robotoFont);
@@ -95,8 +101,6 @@ public class Vista extends JFrame implements ActionListener, ComponentListener {
         btnConectar.setFont(robotoFont2);
         panel.add(btnConectar);
 
-        add(panel);
-
         setVisible(true);
     }
 
@@ -108,62 +112,49 @@ public class Vista extends JFrame implements ActionListener, ComponentListener {
         String usuario = txtUsuario.getText();
         String contraseña = txtContraseña.getText();
 
-        ConexionDB conexion = new ConexionDB(servidor, basededatos, usuario, contraseña);
-        // Connection con = conexion.getConexion();
-        // try {
-        // Statement stmt = con.createStatement();
-        // stmt.executeQuery("SELECT * FROM articulos");
-        // ResultSet rs = stmt.getResultSet();
-
-        // } catch (Exception e) {
-        // System.out.println(e);
+        // if (servidor.equals("") || basededatos.equals("") || usuario.equals("") ||
+        // contraseña.equals("")) {
+        // System.out.println("Faltan datos de conexión");
+        // Notifications.getInstance().show(Notifications.Type.INFO,
+        // Notifications.Location.TOP_CENTER,
+        // "Escribir los datos de conexión");
+        // return;
         // }
-        login();
 
-    }
-
-    public static void login() {
-        FlatAnimatedLafChange.showSnapshot();
-        app.setContentPane(app.menu);
-        app.menu.applyComponentOrientation(app.getComponentOrientation());
-        // setSelectedMenu(0, 0);
-
-        SwingUtilities.updateComponentTreeUI(app.menu);
-        FlatAnimatedLafChange.hideSnapshotWithAnimation();
+        ConexionDB conexion = new ConexionDB(servidor, basededatos, usuario, contraseña);
+        conexion.getConexion();
     }
 
     @Override
     public void componentResized(ComponentEvent e) {
         int w = this.getWidth();
         int h = this.getHeight();
+        float reduccion = 450;
+        System.out.println("w: " + w + " h: " + h);
 
-        panel.setBounds((int) (w * .08), (int) (w * .05), (int) (w * .80), (int) (h * .50));
+        panel.setBounds((int) (w * .08), (int) (w * .05), (int) (w * .80), (int) (h * .5));
 
-        Font robotoFont = getRobotoFont("Roboto", 14, w, h);
+        Font robotoFont0 = Rutinas2.getFont("Roboto", true, 30, w, h, reduccion);
+        lblLogin.setFont(robotoFont0);
+
+        Font robotoFont = Rutinas2.getFont("Roboto", true, 16, w, h, reduccion);
         lblServidor.setFont(robotoFont);
         lblBasedeDatos.setFont(robotoFont);
         lblUsuario.setFont(robotoFont);
         lblContraseña.setFont(robotoFont);
 
-        Font robotoFont2 = getRobotoFont("SegoeUI", 10, w, h);
+        Font robotoFont2 = Rutinas2.getFont("Roboto", true, 16, w, h, reduccion);
         txtServidor.setFont(robotoFont2);
         txtBasedeDatos.setFont(robotoFont2);
         txtUsuario.setFont(robotoFont2);
         txtContraseña.setFont(robotoFont2);
 
-        Font robotoFont3 = getRobotoFont("Roboto", 12, w, h);
+        Font robotoFont3 = Rutinas2.getFont("Roboto", true, 18, w, h, reduccion);
         btnConectar.setFont(robotoFont3);
 
-        panel.setLayout(new Contenedorlbl_txt());
+        lightDarkMode.setBounds((int) (w * .4), (int) (h * .80), (int) (w * .55), (int) (h * .10));
 
-        lightDarkMode.setBounds((int) (w * .4), (int) (h * .70), (int) (w * .50), (int) (h * .10));
-
-        revalidate();
-    }
-
-    private Font getRobotoFont(String letra, int baseSize, int width, int height) {
-        int scaledSize = (int) (baseSize * (Math.min(width, height) / 350.0));
-        return new Font(letra, Font.BOLD, scaledSize);
+        // revalidate();
     }
 
     @Override

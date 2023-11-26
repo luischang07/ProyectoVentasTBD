@@ -1,12 +1,17 @@
 
 import java.sql.*;
 
+import raven.toast.Notifications;
+
 public class ConexionDB {
 
     private String servidor;
     private String basededatos;
     private String usuario;
     private String password;
+
+    static Connection conexion;
+    static String conexionUrl;
 
     public ConexionDB(String servidor, String basededatos, String usuario, String password) {
         this.servidor = servidor;
@@ -15,29 +20,31 @@ public class ConexionDB {
         this.password = password;
     }
 
-    public Connection getConexion() {
+    public void getConexion() {
 
         // String conexionUrl = "jdbc:sqlserver://" + servidor + ";"
         // + "database=" + basededatos + ";"
         // + "user=" + usuario + ";"
         // + "password=" + password + ";"
         // + "trustServerCertificate=true;";
-        String conexionUrl = "jdbc:sqlserver://" + "Once" + ";"
+        conexionUrl = "jdbc:sqlserver://" + "Once" + ";"
                 + "database=" + "ventas" + ";"
                 + "user=" + "Twice" + ";"
                 + "password=" + "Once151103" + ";"
-                + "trustServerCertificate=true;";
+                + "trustServerCertificate=true;"
+                + "loginTimeout=5;";
         try {
-            Connection conexion = DriverManager.getConnection(conexionUrl);
+
+            conexion = DriverManager.getConnection(conexionUrl);
             if (conexion != null) {
-                System.out.println("Conexión exitosa a la base de datos.");
-                return conexion;
+                System.out.println("Conectado a la base de datos");
+                App.login(conexion);
             }
         } catch (SQLException e) {
-            System.err.println("Error al conectar a la base de datos: " + e.getMessage());
-            return null;
+            Notifications.getInstance().show(Notifications.Type.INFO, Notifications.Location.TOP_CENTER,
+                    "Error al conectar a la base de datos");
+            System.err.println(e.getMessage());
         }
-        return null;
 
     }
 

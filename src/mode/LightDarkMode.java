@@ -6,6 +6,7 @@ import com.formdev.flatlaf.extras.FlatAnimatedLafChange;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.formdev.flatlaf.themes.FlatMacDarkLaf;
 import com.formdev.flatlaf.themes.FlatMacLightLaf;
+
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -14,17 +15,17 @@ import java.awt.Font;
 import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
+
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-/**
- *
- * @author Raven
- */
 public class LightDarkMode extends JPanel {
 
-    public LightDarkMode() {
+    float reduccion;
+
+    public LightDarkMode(float reduccion) {
+        this.reduccion = reduccion;
         init();
     }
 
@@ -158,14 +159,26 @@ public class LightDarkMode extends JPanel {
 
                 int h = parent.getHeight();
 
-                buttonLight.setFont(getFont(h, buttonWidth, height));
-                buttonDark.setFont(getFont(h, buttonWidth, height));
+                buttonLight.setFont(getFont(h, buttonWidth, h));
+                buttonDark.setFont(getFont(h, buttonWidth, h));
+
+                String svgURI = "mode/dark.svg", svgURI2 = "mode/light.svg";
+
+                int widthImg = (int) (buttonDark.getWidth() * .30);
+                int heightImg = (int) (buttonDark.getHeight() * .70);
+
+                buttonDark.setIcon(new FlatSVGIcon(svgURI, widthImg, heightImg));
+                buttonLight.setIcon(new FlatSVGIcon(svgURI2, widthImg, heightImg));
+
+                Font Fuente = Rutinas2.getFont("SegoeUI", false, 20, getWidth(), getHeight(), reduccion);
+                buttonDark.setFont(Fuente);
+                buttonLight.setFont(Fuente);
 
             }
         }
 
         private Font getFont(int baseSize, int width, int height) {
-            int scaledSize = (int) (baseSize * (Math.min(width, height) / 150.0));
+            int scaledSize = (int) (baseSize * (Math.min(width, height) / reduccion));
             return new Font("SegoeUI", Font.PLAIN, scaledSize);
         }
     }
